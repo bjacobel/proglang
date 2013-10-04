@@ -80,7 +80,11 @@ public class Parser {
   
     private Assignment assignment () {
         // Assignment --> Identifier = Expression ;
-        return null;  // student exercise
+        Variable target = new Variable(match(Toke.Identifier));
+        match(Token.Assign);
+        Expression source = expression();
+        match(Token.Semicolon);
+        return new Assignment(target, source);
     }
   
     private Conditional ifStatement () {
@@ -95,7 +99,13 @@ public class Parser {
 
     private Expression expression () {
         // Expression --> Conjunction { || Conjunction }
-        return null;  // student exercise
+        Expression e = term();
+        while(isAddOp()) {
+            Operator op = new Operator(match(token.type()));
+            Expression term2 = term();
+            e = new Binary(op, e, term2);
+        }
+        return e;
     }
   
     private Expression conjunction () {
