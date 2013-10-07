@@ -1,4 +1,5 @@
-Keyword: int
-Operator: =
-FloatLit: 13.37
-Separator: ;
+Int int
+Identifier myNum
+Assign =
+FloatLiteral 4.5
+Semicolon ;

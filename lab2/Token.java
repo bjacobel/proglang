@@ -42,7 +42,7 @@ public class Token {
     private TokenType type;
     private String value = "";
 
-    private Token (TokenType t, String v) {
+    public Token (TokenType t, String v) {
         type = t;
         value = v;
         if (t.compareTo(TokenType.Eof) < 0) {
