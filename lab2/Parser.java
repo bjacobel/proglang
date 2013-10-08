@@ -63,23 +63,8 @@ public class Parser {
         return null;
     }
 
-    private Boolean hasLine(){
-        try {
-            return lexer.ready(); // check to see if there is more in the buffer to be read (ie, another line)
-        } catch (IOException e) {
-            System.out.println("Error interacting with file.");
-            System.exit(0);
-        }
-        return Boolean.FALSE;
-
-    }
-
     private Boolean start(){
-        Boolean assignPassed = assignment();    //descend to assignment production method
-
-        Boolean atEnd = !nextToken();
-
-        if (assignPassed && atEnd)
+        if (assignment() && !nextToken())
             return Boolean.TRUE;
         return Boolean.FALSE;
     }
@@ -87,18 +72,12 @@ public class Parser {
     private Boolean assignment(){
         nextToken();
 
-        Boolean gotNext;
-
-        if (token.type() == TokenType.Identifier) {
-            gotNext = nextToken();
-            if (gotNext && token.type() == TokenType.Assign) {
-                Boolean exprPassed = expression();      // descend to expression production method
-                gotNext = nextToken();
-                if (gotNext && token.type() == TokenType.Semicolon && exprPassed) {
+        if (token.type() == TokenType.Identifier)
+            if (nextToken() && token.type() == TokenType.Assign) {
+                Boolean hasExpr = expression();      // descend to expression production method
+                if (nextToken() && token.type() == TokenType.Semicolon && hasExpr)
                     return Boolean.TRUE;
-                }
             }
-        }
         return Boolean.FALSE;
     }
 
@@ -109,16 +88,14 @@ public class Parser {
     }
 
     private Boolean expression_prime(){
-        if (!hasLine() || (addOp() && term() && expression_prime()))
-            return Boolean.TRUE;
+        if (addOp())
+            if(term() && expression_prime())
+                return Boolean.TRUE;
         return Boolean.FALSE;
-
     }
 
     private Boolean addOp(){
-        Boolean gotNext = nextToken();
-
-        if (gotNext && (token.type() == TokenType.Plus || token.type() == TokenType.Minus)) 
+        if (nextToken() && (token.type() == TokenType.Plus || token.type() == TokenType.Minus)) 
             return Boolean.TRUE;
         return Boolean.FALSE;
     }
@@ -136,9 +113,7 @@ public class Parser {
     }
 
     private Boolean multOp(){
-        Boolean gotNext = nextToken();
-
-        if (gotNext && (token.type() == TokenType.Multiply || token.type() == TokenType.Divide)) 
+        if (nextToken() && (token.type() == TokenType.Multiply || token.type() == TokenType.Divide)) 
             return Boolean.TRUE;
         return Boolean.FALSE;
     }
@@ -150,28 +125,24 @@ public class Parser {
     }
 
     private Boolean factor_prime(){
-        if (hasLine() || unaryOp())
+        if (unaryOp())
             return Boolean.TRUE;
-        return Boolean.FALSE;
+        return Boolean.TRUE;
     }
 
     private Boolean unaryOp(){
-        Boolean gotNext = nextToken();
-
-        if (gotNext && token.type() == TokenType.Not) // I'm not sure what the "invert" sign falls under as a token type
+        if (nextToken() && token.type() == TokenType.Not)
             return Boolean.TRUE;
         return Boolean.FALSE;
     }
 
     private Boolean primary(){
-        Boolean gotNext = nextToken();
-
-        if (gotNext && (token.type() == TokenType.Identifier || token.type() == TokenType.IntLiteral || token.type() == TokenType.FloatLiteral || token.type() == TokenType.CharLiteral)) {
+        if (nextToken() && (token.type() == TokenType.Identifier || token.type() == TokenType.IntLiteral || token.type() == TokenType.FloatLiteral || token.type() == TokenType.CharLiteral)) {
             return Boolean.TRUE;
         } else if (token.type() == TokenType.LeftParen) {
-            Boolean exprPassed = expression();
+            Boolean hasExpr = expression();
             nextToken();
-            if (exprPassed && token.type() == TokenType.RightParen)
+            if (hasExpr && token.type() == TokenType.RightParen)
                 return Boolean.TRUE;
         }
         return Boolean.FALSE;
