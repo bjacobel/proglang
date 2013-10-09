@@ -192,7 +192,7 @@ public class Parser {
         return false;
     }
 
-    private Boolean assignment(){
+    private Boolean assignment() {
         if (token.type() == TokenType.Identifier) {
             nextToken();
             if (token.type() == TokenType.LeftBracket) {
@@ -216,7 +216,7 @@ public class Parser {
     }
 
 
-    private Boolean ifStatement(){
+    private Boolean ifStatement() {
         if (token.type() == TokenType.If) {  // whoa, meta
             nextToken();
             if (token.type() == TokenType.LeftParen) {
@@ -230,6 +230,7 @@ public class Parser {
                                 if(statement() ){
                                     ;  // could return true here, but it's redundant
                                 }
+                            }
                         }
                         return true;
                     }
@@ -239,5 +240,154 @@ public class Parser {
         return false;
     }
 
+    private Boolean expression() {
+        if(conjunction()) {
+            while(token.type() == TokenType.Or) {
+                nextToken();
+                if(conjunction()) {
+                    ;  // do nothing
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private Boolean conjunction() {
+        if(equality()) {
+            while(token.type() == TokenType.And) {
+                nextToken();
+                if(equality()) {
+                    ;  // do nothing
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private Boolean equality() {
+        if (relation()) {
+            if (equOp())
+                if (relation())
+                    ;  // do nothing
+            return true;
+        }
+        return false;
+    }
+
+    private Boolean equOp() {
+        if (token.type() == TokenType.Equals) {
+            nextToken();
+            return true;
+        } else if (token.type() == TokenType.NotEqual) {
+            nextToken();
+            return true;
+        }
+        return false;
+    }
+
+    private Boolean relation() {
+        if (addition()) {
+            if (relOp())
+                if (addition())
+                    ;  // do nothing
+            return true;
+        }
+        return false;
+    }
+
+    private Boolean relOp() {
+        if (token.type() == TokenType.Less) {
+            nextToken();
+            return true;
+        } else if (token.type() == TokenType.LessEqual) {
+            nextToken();
+            return true;
+        } else if (token.type() == TokenType.Greater) {
+            nextToken();
+            return true;
+        } else if (token.type() == TokenType.GreaterEqual) {
+            nextToken();
+            return true;
+        }
+        return false;
+    }
+
+    private Boolean addition() {
+        if(term()){
+            while(addOp() && term()){
+                ;  // do nothing
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private Boolean addOp() {
+        if (token.type() == TokenType.Plus) {
+            nextToken();
+            return true;
+        } else if (token.type() == TokenType.Minus) {
+            nextToken();
+            return true;
+        }
+        return false;
+    }    
+
+    private Boolean term() {
+        if(factor()){
+            while(mulOp() && factor()){
+                ;  // do nothing
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private Boolean mulOp() {
+        if (token.type() == TokenType.Multiply) {
+            nextToken();
+            return true;
+        } else if (token.type() == TokenType.Divide) {
+            nextToken();
+            return true;
+        } // TODO: modulus
+        return false;
+    }
+
+    private Boolean factor() {
+        if (unaryOp()) {
+            ;  // do nothing
+        }
+        if (primary()) {
+            return true;
+        }
+        return false;
+    }
+
+    private Boolean unaryOp() {
+        if(token.type() == TokenType.Not) {
+            nextToken();
+            return true;
+        }  // TODO: "negative"
+        return false;
+    }
+
+    private Boolean primary() {
+        if(token.type() == TokenType.Identifier || token.type() == TokenType.IntLiteral || token.type() == TokenType.FloatLiteral || token.type() == TokenType.CharLiteral){
+            nextToken();
+            return true;
+        } else if (token.type() == TokenType.LeftParen) {
+            nextToken();
+            if (expression()) {
+                if (token.type() == TokenType.RightParen) {
+                    nextToken();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
 }
