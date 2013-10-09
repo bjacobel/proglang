@@ -4,6 +4,7 @@ import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.FileNotFoundException;
+import java.lang.IllegalArgumentException;
 
 public class Parser {
     // Recursive descent parser that inputs a C++Lite program and 
@@ -19,7 +20,6 @@ public class Parser {
     }
   
     private Parser() {
-
         try {
             FileInputStream fis = new FileInputStream("lexoutput");
             lexer = new BufferedReader(new InputStreamReader(fis));
@@ -29,14 +29,15 @@ public class Parser {
             System.exit(0);
         }
 
+        // get the very first token
         nextToken();
 
-        Boolean success = start();
+        Boolean success = program();
 
         if(success) {
-            System.out.println("Valid assignment syntax detected.");
+            System.out.println("Valid program syntax detected.");
         } else {
-            System.out.println("There was an error in the assignment syntax.");
+            System.out.println("There was an error in the program syntax.");
         }
     }
 
@@ -46,10 +47,21 @@ public class Parser {
         if (line != null) {
             String type = line.split(" ")[0];
             String identifier = line.split(" ")[1];
-            token = new Token(TokenType.valueOf(type), identifier);
-            return Boolean.TRUE;
+
+            TokenType tokenType = null;
+
+            try {
+                tokenType = TokenType.valueOf(type);
+            } catch (IllegalArgumentException e){
+                System.out.println(type + " is not a valid token type.");
+                System.exit(0);
+            } finally {
+                token = new Token(tokenType, identifier);
+                if (token != null)
+                    return true;
+            }
         }
-        return Boolean.FALSE; // no more tokens to get
+        return false; // no more tokens to get
     }
  
     // return the next line of the lex file as a string
@@ -63,89 +75,169 @@ public class Parser {
         return null;
     }
 
-    private Boolean start(){
-        if (assignment() && !nextToken())
-            return Boolean.TRUE;
-        return Boolean.FALSE;
+
+
+    /* RECURSIVE DESCENT METHODS */
+    /* Important: only get a new nextToken AFTER you've successfully matched the type of one
+        Otherwise you'll be grabbing tokens and never properly investigating them */
+
+    private Boolean program() {
+        if (token.type() == TokenType.Int){
+            nextToken();
+            if (token.type() == TokenType.Main) {
+                nextToken();
+                if (token.type() == TokenType.LeftParen) {
+                    nextToken();
+                    if (token.type() == TokenType.RightParen) {
+                        nextToken();
+                        if (token.type() == TokenType.LeftBracket) {
+                            nextToken();
+                            Boolean d = declarations();
+                            Boolean s = statements();
+                            if (d && s && token.type() == TokenType.RightBracket) {
+                                nextToken();
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private Boolean declarations() {
+        while (declaration()){
+            ; //do nothing
+        }
+        return true;
+    }
+
+
+    private Boolean declaration() {
+        if (type()) {
+            if (token.type() == TokenType.Identifier) {
+                nextToken();
+                if(token.type() == TokenType.LeftBracket) {
+                    nextToken();
+                    if(token.type() == TokenType.IntLiteral) {
+                        nextToken();
+                        if(token.type() == TokenType.RightBracket) {
+                            nextToken();
+                        }
+                    }
+                }
+                
+                Boolean declOptionalRepeat;
+                do {
+                    declOptionalRepeat = false;
+                    if(token.type() == TokenType.Comma) {
+                        nextToken();
+                        if(token.type() == TokenType.Identifier) {
+                            nextToken();
+                            if(token.type() == TokenType.LeftBracket) {
+                                nextToken();
+                                if(token.type() == TokenType.IntLiteral) {
+                                    nextToken();
+                                    if(token.type() == TokenType.RightBracket) {
+                                        nextToken();
+                                    }
+                                }
+                            }
+                            declOptionalRepeat = true;
+                        }
+                    }
+                } while (declOptionalRepeat == true);
+
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Boolean type(){
+        if(token.type() == TokenType.Int || token.type() == TokenType.Bool || token.type() == TokenType.Char || token.type() == TokenType.Float) {
+            nextToken();
+            return true;
+        }
+        return false;
+    }
+
+    private Boolean statements() {
+        while (statement()){
+            ; //do nothing
+        }
+        return true;
+    }
+
+    private Boolean statement() {
+        if (token.type() == TokenType.Semicolon) {
+            nextToken();
+            return true;
+        } else if (block() || assignment() || ifStatement() /*|| whileStatement()*/) {  // whileStatement syntax was not given so I'm skipping it
+            return true;
+        }
+        return false;
+    }
+
+    private Boolean block() {
+        if (token.type() == TokenType.LeftBrace) {
+            nextToken();
+            statements();
+            if (token.type() == TokenType.RightBrace) {
+                nextToken();
+                return true;
+            }
+        }
+        return false;
     }
 
     private Boolean assignment(){
-        nextToken();
-
-        if (token.type() == TokenType.Identifier)
-            if (nextToken() && token.type() == TokenType.Assign) {
-                Boolean hasExpr = expression();      // descend to expression production method
-                if (nextToken() && token.type() == TokenType.Semicolon && hasExpr)
-                    return Boolean.TRUE;
-            }
-        return Boolean.FALSE;
-    }
-
-    private Boolean expression(){
-        if(term() && expression_prime())
-            return Boolean.TRUE;
-        return Boolean.FALSE;
-    }
-
-    private Boolean expression_prime(){
-        if (addOp())
-            if(term() && expression_prime())
-                return Boolean.TRUE;
-        return Boolean.FALSE;
-    }
-
-    private Boolean addOp(){
-        if (nextToken() && (token.type() == TokenType.Plus || token.type() == TokenType.Minus)) 
-            return Boolean.TRUE;
-        return Boolean.FALSE;
-    }
-
-    private Boolean term(){
-        if(factor() && term_prime())
-            return Boolean.TRUE;
-        return Boolean.FALSE;
-    }
-
-    private Boolean term_prime(){
-        if(multOp() && factor() && term_prime())
-            return Boolean.TRUE;
-        return Boolean.FALSE;
-    }
-
-    private Boolean multOp(){
-        if (nextToken() && (token.type() == TokenType.Multiply || token.type() == TokenType.Divide)) 
-            return Boolean.TRUE;
-        return Boolean.FALSE;
-    }
-
-    private Boolean factor(){
-        if(factor_prime() && primary())
-            return Boolean.TRUE;
-        return Boolean.FALSE;
-    }
-
-    private Boolean factor_prime(){
-        if (unaryOp())
-            return Boolean.TRUE;
-        return Boolean.TRUE;
-    }
-
-    private Boolean unaryOp(){
-        if (nextToken() && token.type() == TokenType.Not)
-            return Boolean.TRUE;
-        return Boolean.FALSE;
-    }
-
-    private Boolean primary(){
-        if (nextToken() && (token.type() == TokenType.Identifier || token.type() == TokenType.IntLiteral || token.type() == TokenType.FloatLiteral || token.type() == TokenType.CharLiteral)) {
-            return Boolean.TRUE;
-        } else if (token.type() == TokenType.LeftParen) {
-            Boolean hasExpr = expression();
+        if (token.type() == TokenType.Identifier) {
             nextToken();
-            if (hasExpr && token.type() == TokenType.RightParen)
-                return Boolean.TRUE;
+            if (token.type() == TokenType.LeftBracket) {
+                nextToken();
+                if(expression()){
+                    if (token.type() == TokenType.LeftBracket) {
+                        nextToken();
+                    }
+                }
+            }
+            if (token.type() == TokenType.Assign) {
+                nextToken();
+                if (expression()){
+                    if (token.type() == TokenType.Semicolon) {
+                        return true;
+                    }
+                }
+            }
         }
-        return Boolean.FALSE;
+        return false;
     }
+
+
+    private Boolean ifStatement(){
+        if (token.type() == TokenType.If) {  // whoa, meta
+            nextToken();
+            if (token.type() == TokenType.LeftParen) {
+                nextToken();
+                if(expression()) {
+                    if (token.type() == TokenType.RightParen) {
+                        nextToken();
+                        if(statement()){
+                            if (token.type() == TokenType.Else) {
+                                nextToken();
+                                if(statement() ){
+                                    ;  // could return true here, but it's redundant
+                                }
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
 
 }

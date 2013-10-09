@@ -1,5 +1,11 @@
 Int int
-Identifier myNum
-Assign =
-FloatLiteral 4.5
+Main main
+LeftParen (
+RightParen )
+LeftBracket {
+Int int
+Identifier four
+Assign = 
+IntLit 4
 Semicolon ;
+RightBracket }
