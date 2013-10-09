@@ -5,7 +5,9 @@ RightParen )
 LeftBracket {
 Int int
 Identifier four
+Semicolon ;
+Identifier four
 Assign = 
-IntLit 4
+IntLiteral 4
 Semicolon ;
 RightBracket }

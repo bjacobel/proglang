@@ -127,7 +127,7 @@ public class Parser {
                         }
                     }
                 }
-                
+
                 Boolean declOptionalRepeat;
                 do {
                     declOptionalRepeat = false;
@@ -148,7 +148,6 @@ public class Parser {
                         }
                     }
                 } while (declOptionalRepeat == true);
-
                 return true;
             }
         }
