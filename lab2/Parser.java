@@ -32,9 +32,7 @@ public class Parser {
         // get the very first token
         nextToken();
 
-        Boolean success = program();
-
-        if(success) {
+        if(program().bool()) {
             System.out.println("Valid program syntax detected.");
         } else {
             System.out.println("There was an error in the program syntax.");
@@ -81,7 +79,7 @@ public class Parser {
     /* Important: only get a new nextToken AFTER you've successfully matched the type of one
         Otherwise you'll be grabbing tokens and never properly investigating them */
 
-    private Boolean program() {
+    private Program program() {
         if (token.type() == TokenType.Int){
             nextToken();
             if (token.type() == TokenType.Main) {
@@ -92,30 +90,35 @@ public class Parser {
                         nextToken();
                         if (token.type() == TokenType.LeftBracket) {
                             nextToken();
-                            Boolean d = declarations();
-                            Boolean s = statements();
-                            if (d && s && token.type() == TokenType.RightBracket) {
+                            Declarations d = declarations();
+                            Statements s = statements();
+                            if (d.bool() && s.bool() && token.type() == TokenType.RightBracket) {
                                 nextToken();
-                                return true;
+                                Program program = new Program(d, s);
+                                return program;
                             }
                         }
                     }
                 }
             }
         }
-        return false;
+        return null;
     }
 
-    private Boolean declarations() {
-        while (declaration()){
-            ; //do nothing
-        }
-        return true;
+    private Declarations declarations() {
+        Declarations ds = new Declarations();
+        Declaration d;
+        do {
+            d = declaration();
+            if (d != null)
+                ds.addDeclaration(d);
+        } while (d != null);
+        return ds;
     }
 
 
     private Boolean declaration() {
-        if (type()) {
+        if (type().bool()) {
             if (token.type() == TokenType.Identifier) {
                 nextToken();
                 if(token.type() == TokenType.LeftBracket) {
@@ -154,41 +157,47 @@ public class Parser {
         return false;
     }
 
-    private Boolean type(){
+    private Type type(){
         if(token.type() == TokenType.Int || token.type() == TokenType.Bool || token.type() == TokenType.Char || token.type() == TokenType.Float) {
             nextToken();
-            return true;
+            Type t = new Type();
+            return t;
         }
-        return false;
+        return null;
     }
 
-    private Boolean statements() {
-        while (statement()){
-            ; //do nothing
-        }
-        return true;
+    private Statements statements() {
+        Statements ss = new Statements();
+        Statement s;
+        do {
+            s = statement();
+            if (s != null)
+                ss.addStatement(s);
+        } while (s != null);
+        return ss;
     }
 
     private Boolean statement() {
         if (token.type() == TokenType.Semicolon) {
             nextToken();
             return true;
-        } else if (block() || assignment() || ifStatement() /*|| whileStatement()*/) {  // whileStatement syntax was not given so I'm skipping it
+        } else if (block().bool() || assignment() || ifStatement() /*|| whileStatement()*/) {  // whileStatement syntax was not given so I'm skipping it
             return true;
         }
         return false;
     }
 
-    private Boolean block() {
+    private Block block() {
         if (token.type() == TokenType.LeftBrace) {
             nextToken();
-            statements();
+            Statements s = statements();
             if (token.type() == TokenType.RightBrace) {
                 nextToken();
-                return true;
+                Block b = new Block(s);
+                return b;
             }
         }
-        return false;
+        return null;
     }
 
     private Boolean assignment() {
