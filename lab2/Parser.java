@@ -40,7 +40,28 @@ public class Parser {
             System.out.println("There was an error in the program syntax.");
         }
 
-        System.out.println("\nThe syntax tree is as follows:\n" + program);
+        // The syntax tree will be fully parsed by calling program.toString()
+        // but it's not very human-readable, so I go over it with this method to add indentation, etc.
+        String tree = program.toString();
+        tree = tree.replace("null", " ");  // remove instances of "null" in the string - those are places where the parse tree terminates
+        String[] treeParts = tree.split("\\s+");
+        
+        int indentLevel = 0;
+
+        for(String token : treeParts) {
+
+            
+            if (token.equals("[")){
+                indentLevel++;
+            } else if (token.equals("]")){
+                indentLevel--;
+            } else {
+                for(int i = 0; i < indentLevel; i++)
+                    System.out.print("\t");
+                System.out.println(token);
+            }
+        }
+
     }
 
     // using the getLine method, get the next token and set it as a global variable

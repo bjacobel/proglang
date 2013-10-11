@@ -19,7 +19,7 @@ class Program {
 
     @Override
     public String toString(){
-        return " Program [" + declarations + statements + " ]";
+        return "Program [" + declarations + statements + " ]";
     }
 }
 
@@ -69,7 +69,7 @@ class Statements {
         String stats = " Statements [";
         for (Statement s : statements)
             stats += (" " + s);
-        stats += "]";
+        stats += " ]";
         return stats;
     }
 }
