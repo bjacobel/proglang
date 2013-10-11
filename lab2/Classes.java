@@ -12,22 +12,17 @@ import java.util.ArrayList;
 class Program {
     Declarations declarations;
     Statements statements;
-    Boolean tf = false;;
 
     public Program(Declarations d, Statements s){
         declarations = d;
         statements = s;
-        tf = true;
     }
 }
 
 class Declarations {
-    ArrayList<Declaration> declarations;
-    Boolean tf = false;;
+    ArrayList<Declaration> declarations = new ArrayList();
 
-    public Declarations(){
-        tf = true;
-    }
+    public Declarations(){}
 
     public void addDeclaration(Declaration d){
         declarations.add(d);
@@ -43,12 +38,9 @@ class Declaration {
 }
 
 class Statements {
-    ArrayList<Statement> statements;
-    Boolean tf = false;;
+    ArrayList<Statement> statements = new ArrayList();
 
-    public Statements(){
-        tf = true;
-    }
+    public Statements(){}
 
     public void addStatement(Statement s){
         statements.add(s);
@@ -124,7 +116,7 @@ class IfStatement {
 
 class Expression {
     Conjunction reqConjunction;
-    ArrayList<Conjunction> optConjunctions;
+    ArrayList<Conjunction> optConjunctions = new ArrayList();
 
     public Expression(Conjunction c){
         reqConjunction = c;
@@ -137,7 +129,7 @@ class Expression {
 
 class Conjunction {
     Equality reqEquality;
-    ArrayList<Equality> optEqualities;
+    ArrayList<Equality> optEqualities = new ArrayList();
 
     public Conjunction(Equality e){
         reqEquality = e;
@@ -195,8 +187,8 @@ class RelOp {
 
 class Addition {
     Term term;
-    ArrayList<AddOp> optAddOps;
-    ArrayList<Term> optTerms;
+    ArrayList<AddOp> optAddOps = new ArrayList();
+    ArrayList<Term> optTerms = new ArrayList();
 
     public Addition(Term t) {
         term = t;
@@ -218,8 +210,8 @@ class AddOp {
 
 class Term {
     Factor factor;
-    ArrayList<MulOp> optMulOps;
-    ArrayList<Factor> optFactors;
+    ArrayList<MulOp> optMulOps = new ArrayList();
+    ArrayList<Factor> optFactors = new ArrayList();
 
     public Term(Factor f) {
         factor = f;
