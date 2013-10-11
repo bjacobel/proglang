@@ -8,7 +8,6 @@ import java.util.ArrayList;
 **/
 
 
-
 class Program {
     Declarations declarations;
     Statements statements;
@@ -16,6 +15,11 @@ class Program {
     public Program(Declarations d, Statements s){
         declarations = d;
         statements = s;
+    }
+
+    @Override
+    public String toString(){
+        return "Program\n" + declarations + statements;
     }
 }
 
@@ -27,6 +31,14 @@ class Declarations {
     public void addDeclaration(Declaration d){
         declarations.add(d);
     }
+
+    @Override
+    public String toString(){
+        String decs = "Declarations\n";
+        for (Declaration d : declarations)  // java gets something right, for once...
+            decs += (d + "\n");
+        return decs;
+    }
 }
 
 class Declaration {
@@ -34,6 +46,11 @@ class Declaration {
 
     public Declaration(Type t){
         type = t;
+    }
+
+    @Override
+    public String toString(){
+        return "Declaration\n" + type;
     }
 }
 
@@ -44,6 +61,14 @@ class Statements {
 
     public void addStatement(Statement s){
         statements.add(s);
+    }
+
+    @Override
+    public String toString(){
+        String stats = "Statements\n";
+        for (Statement s : statements)
+            stats += (s + "\n");
+        return stats;
     }
 }
 
@@ -67,24 +92,32 @@ class Statement {
     public Statement(IfStatement i){
         ifstatement = i;
     }
+
+    @Override
+    public String toString(){
+        return "Statement\n" + block + assignment + ifstatement;
+    }
 }
 
 class Type {
-    Boolean tf = false;;
+    public Type(){}
 
-    public Type(){
-        tf = true;
-
+    @Override
+    public String toString(){
+        return "Type\n";
     }
 }
 
 class Block {
     Statements statements;
-    Boolean tf = false;;
 
     public Block(Statements s){
         statements = s;
-        tf = true;
+    }
+
+    @Override
+    public String toString(){
+        return "Block\n" + statements;
     }
 }
 
@@ -99,6 +132,10 @@ class Assignment {
         }
     }
 
+    @Override
+    public String toString(){
+        return "Assignment\n" + optionalExpression + expression;
+    }
 }
 
 class IfStatement {
@@ -111,6 +148,11 @@ class IfStatement {
         statement = s;
         if (os != null)
             optionalStatement = os;
+    }
+
+    @Override
+    public String toString(){
+        return "IfStatement\n" + expression + statement + optionalStatement;
     }
 }
 
@@ -125,6 +167,14 @@ class Expression {
     public void addConjunction(Conjunction c) {
         optConjunctions.add(c);
     }
+
+    @Override
+    public String toString(){
+        String s = "Expression\n" + reqConjunction;
+        for (Conjunction c : optConjunctions)
+            s += (c + "\n");
+        return s;
+    }
 }
 
 class Conjunction {
@@ -137,6 +187,14 @@ class Conjunction {
 
     public void addEquality(Equality e) {
         optEqualities.add(e);
+    }
+
+    @Override
+    public String toString(){
+        String s = "Conjunction\n" + reqEquality;
+        for (Equality e : optEqualities)
+            s += (e + "\n");
+        return s;
     }
 }
 
@@ -156,12 +214,20 @@ class Equality {
         // is kind of stupid. but it's more clear than not explicitly saying "these are optional" in any other way
         // now if only this was Python or PHP and methods could have defaults for unprovided parameters
     }
+
+    @Override
+    public String toString(){
+        return "Equality\n" + relation + equop + optRelation;
+    }
 }
 
 class EquOp {
     // no non-terminals in this object!
-    public EquOp(){
-        //uhh...
+    public EquOp(){}
+
+    @Override
+    public String toString(){
+        return "EquOp\n";
     }
 }
 
@@ -177,11 +243,21 @@ class Relation {
         if (oa != null)
             optAddition  = oa;
     }
+
+    @Override
+    public String toString(){
+        return "Relation\n" + addition + relop + optAddition;
+    }
 }
 
 class RelOp {
     public RelOp(){
         //don't need to do anything here
+    }
+
+    @Override
+    public String toString(){
+        return "RelOp\n";
     }
 }
 
@@ -200,11 +276,26 @@ class Addition {
     public void addTerm(Term t){
         optTerms.add(t);
     }
+
+    @Override
+    public String toString(){
+        String s = "Addition\n" + term;
+        for (AddOp a : optAddOps){
+            s += (a + "\n");
+            s += optTerms.get(optAddOps.indexOf(a));
+        }
+        return s;
+    }
 }
 
 class AddOp {
     public AddOp(){
         //don't need to do anything here
+    }
+
+    @Override
+    public String toString(){
+        return "AddOp\n";
     }
 }
 
@@ -223,11 +314,26 @@ class Term {
     public void addFactor(Factor f){
         optFactors.add(f);
     }
+
+    @Override
+    public String toString(){
+        String s = "Term\n" + factor;
+        for (MulOp m : optMulOps){
+            s += (m + "\n");
+            s += optFactors.get(optMulOps.indexOf(m));
+        }
+        return s;
+    }
 }
 
 class MulOp {
     public MulOp(){
         //don't need to do anything here
+    }
+
+    @Override
+    public String toString(){
+        return "MulOp\n";
     }
 }
 
@@ -240,24 +346,34 @@ class Factor {
         if (uo != null) 
             optUnaryOp = uo;
     }
+
+    @Override
+    public String toString(){
+        return "Factor\n" + optUnaryOp + primary;
+    }
 }
 
 class UnaryOp {
-    public UnaryOp(){
+    public UnaryOp(){}
 
+    @Override
+    public String toString(){
+        return "UnaryOp\n";
     }
-
 }
 
 class Primary {
     Expression optExpression = null;
 
-    public Primary(){
-
-    }
+    public Primary(){}
 
     public Primary(Expression e){
         optExpression = e;
+    }
+
+    @Override
+    public String toString(){
+        return "Primary\n" + optExpression;
     }
 }
 

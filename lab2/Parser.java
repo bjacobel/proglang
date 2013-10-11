@@ -32,11 +32,15 @@ public class Parser {
         // get the very first token
         nextToken();
 
-        if(program() != null) {
+        Program program = program();
+
+        if(program != null) {
             System.out.println("Valid program syntax detected.");
         } else {
             System.out.println("There was an error in the program syntax.");
         }
+
+        System.out.println("\nThe syntax tree is as follows:\n" + program);
     }
 
     // using the getLine method, get the next token and set it as a global variable
