@@ -32,7 +32,7 @@ public class Parser {
         // get the very first token
         nextToken();
 
-        if(program().bool()) {
+        if(program() != null) {
             System.out.println("Valid program syntax detected.");
         } else {
             System.out.println("There was an error in the program syntax.");
@@ -92,7 +92,7 @@ public class Parser {
                             nextToken();
                             Declarations d = declarations();
                             Statements s = statements();
-                            if (d.bool() && s.bool() && token.type() == TokenType.RightBracket) {
+                            if (d != null && s != null && token.type() == TokenType.RightBracket) {
                                 nextToken();
                                 Program program = new Program(d, s);
                                 return program;
@@ -117,8 +117,9 @@ public class Parser {
     }
 
 
-    private Boolean declaration() {
-        if (type().bool()) {
+    private Declaration declaration() {
+        Type type = type();
+        if (type != null) {
             if (token.type() == TokenType.Identifier) {
                 nextToken();
                 if(token.type() == TokenType.LeftBracket) {
@@ -151,10 +152,11 @@ public class Parser {
                         }
                     }
                 } while (declOptionalRepeat == true);
-                return true;
+                Declaration declaration = new Declaration(type);  // this line brought to you by the department of redundancy department
+                return declaration;
             }
         }
-        return false;
+        return null;
     }
 
     private Type type(){
@@ -177,14 +179,28 @@ public class Parser {
         return ss;
     }
 
-    private Boolean statement() {
+    private Statement statement() {
         if (token.type() == TokenType.Semicolon) {
             nextToken();
-            return true;
-        } else if (block().bool() || assignment() || ifStatement() /*|| whileStatement()*/) {  // whileStatement syntax was not given so I'm skipping it
-            return true;
+            Statement statement = new Statement();
+            return statement;
+        } 
+        Block block = block();
+        Assignment assignment = assignment();
+        IfStatement ifstatement = ifStatement();
+        if (block != null){ 
+            Statement statement = new Statement(block);
+            return statement;
         }
-        return false;
+        if (assignment != null) {
+            Statement statement = new Statement(assignment);
+            return statement;
+        }
+        if (ifStatement != null) {
+            Statement statement = new Statement(ifStatement);
+            return statement;
+        }
+        return null;
     }
 
     private Block block() {
@@ -200,12 +216,14 @@ public class Parser {
         return null;
     }
 
-    private Boolean assignment() {
+    private Assignment assignment() {
+        Expression optionalExpression = null;
         if (token.type() == TokenType.Identifier) {
             nextToken();
             if (token.type() == TokenType.LeftBracket) {
                 nextToken();
-                if(expression()){
+                optionalExpression = expression();
+                if(optionalExpression != null){
                     if (token.type() == TokenType.LeftBracket) {
                         nextToken();
                     }
@@ -213,14 +231,16 @@ public class Parser {
             }
             if (token.type() == TokenType.Assign) {
                 nextToken();
-                if (expression()){
+                Expression expression = expression()
+                if (expression != null){
                     if (token.type() == TokenType.Semicolon) {
-                        return true;
+                        Assignment assignment = new Assignment(expression, optionalExpression);
+                        return assignment;
                     }
                 }
             }
         }
-        return false;
+        return null;
     }
 
 
@@ -229,23 +249,28 @@ public class Parser {
             nextToken();
             if (token.type() == TokenType.LeftParen) {
                 nextToken();
-                if(expression()) {
+                Expression expression = expression();
+                if(expression != null) {
                     if (token.type() == TokenType.RightParen) {
                         nextToken();
-                        if(statement()){
+                        Statement statement = statement();
+                        if(statement != null){
+                            Statement optionalStatement = null;
                             if (token.type() == TokenType.Else) {
                                 nextToken();
-                                if(statement() ){
-                                    ;  // could return true here, but it's redundant
+                                optionalStatement = statement();
+                                if(optionalStatement != null){
+                                    ;  // could return successfully here, but it's redundant - it will anyway
                                 }
                             }
+                            IfStatement ifs = new IfStatement(expression, statement, optionalStatement)
+                            return ifs;
                         }
-                        return true;
                     }
                 }
             }
         }
-        return false;
+        return null;
     }
 
     private Boolean expression() {
