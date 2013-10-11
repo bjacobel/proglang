@@ -187,7 +187,7 @@ public class Parser {
         } 
         Block block = block();
         Assignment assignment = assignment();
-        IfStatement ifstatement = ifStatement();
+        IfStatement ifStatement = ifStatement();
         if (block != null){ 
             Statement statement = new Statement(block);
             return statement;
@@ -231,7 +231,7 @@ public class Parser {
             }
             if (token.type() == TokenType.Assign) {
                 nextToken();
-                Expression expression = expression()
+                Expression expression = expression();
                 if (expression != null){
                     if (token.type() == TokenType.Semicolon) {
                         Assignment assignment = new Assignment(expression, optionalExpression);
@@ -244,7 +244,7 @@ public class Parser {
     }
 
 
-    private Boolean ifStatement() {
+    private IfStatement ifStatement() {
         if (token.type() == TokenType.If) {  // whoa, meta
             nextToken();
             if (token.type() == TokenType.LeftParen) {
@@ -263,7 +263,7 @@ public class Parser {
                                     ;  // could return successfully here, but it's redundant - it will anyway
                                 }
                             }
-                            IfStatement ifs = new IfStatement(expression, statement, optionalStatement)
+                            IfStatement ifs = new IfStatement(expression, statement, optionalStatement);
                             return ifs;
                         }
                     }
@@ -273,154 +273,211 @@ public class Parser {
         return null;
     }
 
-    private Boolean expression() {
-        if(conjunction()) {
+    private Expression expression() {
+        Conjunction conjunction = conjunction();
+        if(conjunction != null) {
+            Expression expression = new Expression(conjunction);
             while(token.type() == TokenType.Or) {
                 nextToken();
-                if(conjunction()) {
-                    ;  // do nothing
+                Conjunction optionalConjunction = conjunction();  // conjunction junction, what's your function
+                if(conjunction != null) {
+                    expression.addConjunction(optionalConjunction);
                 }
             }
-            return true;
+            return expression;
         }
-        return false;
+        return null;
     }
 
-    private Boolean conjunction() {
-        if(equality()) {
+    private Conjunction conjunction() {
+        Equality equality = equality();
+        if(equality != null) {
+            Conjunction conjunction = new Conjunction(equality);
             while(token.type() == TokenType.And) {
                 nextToken();
-                if(equality()) {
-                    ;  // do nothing
+                Equality optionalEquality = equality();
+                if(equality != null) {
+                    conjunction.addEquality(optionalEquality);
                 }
             }
-            return true;
+            return conjunction;
         }
-        return false;
+        return null;
     }
 
-    private Boolean equality() {
-        if (relation()) {
-            if (equOp())
-                if (relation())
+    private Equality equality() {
+        Relation relation = relation();
+        EquOp equOp = null;
+        Relation optRelation = null;
+
+        if (relation != null) {
+            equOp = equOp();
+            if (equOp != null)
+                optRelation = relation();
+                if (relation != null)
                     ;  // do nothing
-            return true;
+            Equality equality = new Equality (relation, equOp, optRelation);
+            return equality;
         }
-        return false;
+        return null;
     }
 
-    private Boolean equOp() {
+    private EquOp equOp() {
         if (token.type() == TokenType.Equals) {
             nextToken();
-            return true;
+            EquOp eq = new EquOp();
+            return eq;
         } else if (token.type() == TokenType.NotEqual) {
             nextToken();
-            return true;
+            EquOp eq = new EquOp();
+            return eq;
         }
-        return false;
+        return null;
     }
 
-    private Boolean relation() {
-        if (addition()) {
-            if (relOp())
-                if (addition())
+    private Relation relation() {
+        Addition addition = addition();
+        RelOp relOp = null;
+        Addition optAddition = null;
+
+        if (addition != null) {
+            relOp = relOp();
+            if (relOp != null)
+                optAddition = addition();
+                if (addition != null)
                     ;  // do nothing
-            return true;
+            Relation relation = new Relation (addition, relOp, optAddition);
+            return relation;
         }
-        return false;
+        return null;
     }
 
-    private Boolean relOp() {
+    private RelOp relOp() {
         if (token.type() == TokenType.Less) {
             nextToken();
-            return true;
+            RelOp relop = new RelOp();
+            return relop;
         } else if (token.type() == TokenType.LessEqual) {
             nextToken();
-            return true;
+            RelOp relop = new RelOp();
+            return relop;
         } else if (token.type() == TokenType.Greater) {
             nextToken();
-            return true;
+            RelOp relop = new RelOp();
+            return relop;
         } else if (token.type() == TokenType.GreaterEqual) {
             nextToken();
-            return true;
+            RelOp relop = new RelOp();
+            return relop;
         }
-        return false;
+        return null;
     }
 
-    private Boolean addition() {
-        if(term()){
-            while(addOp() && term()){
-                ;  // do nothing
-            }
-            return true;
+    private Addition addition() {
+        Term term = term();
+        if (term != null) {
+            Addition addition = new Addition(term);
+            AddOp optAddOp;
+            Term optTerm;
+            do {
+                optAddOp = addOp();
+                optTerm = term();
+
+                if (optAddOp != null && optTerm != null) {
+                    addition.addAddOp(optAddOp);
+                    addition.addTerm(optTerm);
+                }
+            } while (optAddOp != null && optTerm != null);
+
+            return addition;
         }
-        return false;
+        return null;
     }
 
-    private Boolean addOp() {
+    private AddOp addOp() {
         if (token.type() == TokenType.Plus) {
             nextToken();
-            return true;
+            AddOp ao = new AddOp();
+            return ao;
         } else if (token.type() == TokenType.Minus) {
             nextToken();
-            return true;
+            AddOp ao = new AddOp();
+            return ao;
         }
-        return false;
+        return null;
     }    
 
-    private Boolean term() {
-        if(factor()){
-            while(mulOp() && factor()){
-                ;  // do nothing
-            }
-            return true;
+    private Term term() {
+        Factor factor = factor();
+        if (factor != null) {
+            Term term = new Term(factor);
+            MulOp optMulOp;
+            Factor optFactor;
+            do {
+                optMulOp = mulOp();
+                optFactor = factor();
+
+                if (optMulOp != null && optFactor != null) {
+                    term.addMulOp(optMulOp);
+                    term.addFactor(optFactor);
+                }
+            } while (optMulOp != null && optFactor != null);
+
+            return term;
         }
-        return false;
+        return null;
     }
 
-    private Boolean mulOp() {
+    private MulOp mulOp() {
         if (token.type() == TokenType.Multiply) {
             nextToken();
-            return true;
+            MulOp mo = new MulOp();
+            return mo;
         } else if (token.type() == TokenType.Divide) {
             nextToken();
-            return true;
+            MulOp mo = new MulOp();
+            return mo;
         } // TODO: modulus
-        return false;
+        return null;
     }
 
-    private Boolean factor() {
-        if (unaryOp()) {
-            ;  // do nothing
+    private Factor factor() {
+        UnaryOp unaryOp = unaryOp();
+        Primary primary = primary();
+        if (primary != null) {
+            Factor factor = new Factor(unaryOp, primary);
+            return factor;
         }
-        if (primary()) {
-            return true;
-        }
-        return false;
+        return null;
     }
 
-    private Boolean unaryOp() {
+    private UnaryOp unaryOp() {
         if(token.type() == TokenType.Not) {
             nextToken();
-            return true;
+            UnaryOp uo = new UnaryOp();
+            return uo;
         }  // TODO: "negative"
-        return false;
+        return null;
     }
 
-    private Boolean primary() {
+    private Primary primary() {
+        Primary primary;
         if(token.type() == TokenType.Identifier || token.type() == TokenType.IntLiteral || token.type() == TokenType.FloatLiteral || token.type() == TokenType.CharLiteral){
             nextToken();
-            return true;
+            primary = new Primary();
+            return primary;
         } else if (token.type() == TokenType.LeftParen) {
             nextToken();
-            if (expression()) {
+            Expression expression = expression();
+            if (expression != null) {
                 if (token.type() == TokenType.RightParen) {
                     nextToken();
-                    return true;
+                    primary = new Primary(expression);
+                    return primary;
                 }
             }
         }
-        return false;
+        return null;
     }
 
 }
