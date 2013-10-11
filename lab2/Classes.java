@@ -2,8 +2,8 @@ import java.util.ArrayList;
 
 /** 
  * In writing these classes I have elected not to include references to the
- * terminal symbols in objects which contain them. It was taking too long,
- * and the complexity it introduced was making debigging the important part
+ * terminal symbols (tokens themselves) in objects which contain them. It was taking too long,
+ * and the complexity it introduced was making debugging the important part
  * of the program impossible. -- Brian
 **/
 
@@ -19,7 +19,7 @@ class Program {
 
     @Override
     public String toString(){
-        return "Program\n" + declarations + statements;
+        return " Program [" + declarations + statements + " ]";
     }
 }
 
@@ -34,9 +34,10 @@ class Declarations {
 
     @Override
     public String toString(){
-        String decs = "Declarations\n";
-        for (Declaration d : declarations)  // java gets something right, for once...
-            decs += (d + "\n");
+        String decs = " Declarations [";
+        for (Declaration d : declarations)
+            decs += (" " + d);
+        decs += " ]";
         return decs;
     }
 }
@@ -50,7 +51,7 @@ class Declaration {
 
     @Override
     public String toString(){
-        return "Declaration\n" + type;
+        return " Declaration [" + type + " ]";
     }
 }
 
@@ -65,9 +66,10 @@ class Statements {
 
     @Override
     public String toString(){
-        String stats = "Statements\n";
+        String stats = " Statements [";
         for (Statement s : statements)
-            stats += (s + "\n");
+            stats += (" " + s);
+        stats += "]";
         return stats;
     }
 }
@@ -95,7 +97,7 @@ class Statement {
 
     @Override
     public String toString(){
-        return "Statement\n" + block + assignment + ifstatement;
+        return " Statement [" + block + assignment + ifstatement + " ]";
     }
 }
 
@@ -104,7 +106,7 @@ class Type {
 
     @Override
     public String toString(){
-        return "Type\n";
+        return " Type";
     }
 }
 
@@ -117,7 +119,7 @@ class Block {
 
     @Override
     public String toString(){
-        return "Block\n" + statements;
+        return " Block [" + statements + " ]";
     }
 }
 
@@ -134,7 +136,7 @@ class Assignment {
 
     @Override
     public String toString(){
-        return "Assignment\n" + optionalExpression + expression;
+        return " Assignment [" + optionalExpression + expression + " ]";
     }
 }
 
@@ -152,7 +154,7 @@ class IfStatement {
 
     @Override
     public String toString(){
-        return "IfStatement\n" + expression + statement + optionalStatement;
+        return " IfStatement [" + expression + statement + optionalStatement + " ]";
     }
 }
 
@@ -170,9 +172,10 @@ class Expression {
 
     @Override
     public String toString(){
-        String s = "Expression\n" + reqConjunction;
+        String s = " Expression [" + reqConjunction;
         for (Conjunction c : optConjunctions)
-            s += (c + "\n");
+            s += (" " + c);
+        s += " ]";
         return s;
     }
 }
@@ -191,9 +194,10 @@ class Conjunction {
 
     @Override
     public String toString(){
-        String s = "Conjunction\n" + reqEquality;
+        String s = " Conjunction [" + reqEquality;
         for (Equality e : optEqualities)
-            s += (e + "\n");
+            s += (" " + e);
+        s += " ]";
         return s;
     }
 }
@@ -217,7 +221,7 @@ class Equality {
 
     @Override
     public String toString(){
-        return "Equality\n" + relation + equop + optRelation;
+        return " Equality [" + relation + equop + optRelation + " ]";
     }
 }
 
@@ -227,7 +231,7 @@ class EquOp {
 
     @Override
     public String toString(){
-        return "EquOp\n";
+        return " EquOp";
     }
 }
 
@@ -246,7 +250,7 @@ class Relation {
 
     @Override
     public String toString(){
-        return "Relation\n" + addition + relop + optAddition;
+        return " Relation [" + addition + relop + optAddition + " ]";
     }
 }
 
@@ -257,7 +261,7 @@ class RelOp {
 
     @Override
     public String toString(){
-        return "RelOp\n";
+        return " RelOp";
     }
 }
 
@@ -279,11 +283,12 @@ class Addition {
 
     @Override
     public String toString(){
-        String s = "Addition\n" + term;
+        String s = " Addition [" + term;
         for (AddOp a : optAddOps){
-            s += (a + "\n");
+            s += (" " + a);
             s += optTerms.get(optAddOps.indexOf(a));
         }
+        s += " ]";
         return s;
     }
 }
@@ -295,7 +300,7 @@ class AddOp {
 
     @Override
     public String toString(){
-        return "AddOp\n";
+        return " AddOp";
     }
 }
 
@@ -317,11 +322,12 @@ class Term {
 
     @Override
     public String toString(){
-        String s = "Term\n" + factor;
+        String s = " Term [" + factor;
         for (MulOp m : optMulOps){
-            s += (m + "\n");
+            s += (" " + m);
             s += optFactors.get(optMulOps.indexOf(m));
         }
+        s += " ]";
         return s;
     }
 }
@@ -333,7 +339,7 @@ class MulOp {
 
     @Override
     public String toString(){
-        return "MulOp\n";
+        return " MulOp";
     }
 }
 
@@ -349,7 +355,7 @@ class Factor {
 
     @Override
     public String toString(){
-        return "Factor\n" + optUnaryOp + primary;
+        return " Factor [" + optUnaryOp + primary + " ]";
     }
 }
 
@@ -358,7 +364,7 @@ class UnaryOp {
 
     @Override
     public String toString(){
-        return "UnaryOp\n";
+        return " UnaryOp";
     }
 }
 
@@ -373,7 +379,7 @@ class Primary {
 
     @Override
     public String toString(){
-        return "Primary\n" + optExpression;
+        return " Primary [" + optExpression + " ]";
     }
 }
 
