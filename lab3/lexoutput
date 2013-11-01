@@ -1,0 +1,13 @@
+Int int
+Main main
+LeftParen (
+RightParen )
+LeftBracket {
+Int int
+Identifier four
+Semicolon ;
+Identifier four
+Assign = 
+IntLiteral 4
+Semicolon ;
+RightBracket }
