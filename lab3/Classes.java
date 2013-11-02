@@ -11,15 +11,17 @@ import java.util.ArrayList;
 class Program {
     Declarations declarations;
     Statements statements;
+    Type type;
 
-    public Program(Declarations d, Statements s){
+    public Program(Type t, Declarations d, Statements s){
+        type = t;
         declarations = d;
         statements = s;
     }
 
     @Override
     public String toString(){
-        return "Program [" + declarations + statements + " ]";
+        return "Program [" + type + declarations + statements + " ]";
     }
 }
 
@@ -39,6 +41,10 @@ class Declarations {
             decs += (" " + d);
         decs += " ]";
         return decs;
+    }
+
+    public int count(){
+        return declarations.size();
     }
 }
 
@@ -71,6 +77,10 @@ class Statements {
             stats += (" " + s);
         stats += " ]";
         return stats;
+    }
+
+    public int count(){
+        return statements.size();
     }
 }
 
@@ -110,33 +120,16 @@ class Type {
     }
 }
 
-class Block {
-    Statements statements;
-
-    public Block(Statements s){
-        statements = s;
-    }
-
-    @Override
-    public String toString(){
-        return " Block [" + statements + " ]";
-    }
-}
-
 class Assignment {
-    Expression optionalExpression = null;
     Expression expression;
 
-    public Assignment(Expression e, Expression oe) {
+    public Assignment(Expression e) {
         expression = e;
-        if (oe != null){
-            optionalExpression = oe;
-        }
     }
 
     @Override
     public String toString(){
-        return " Assignment [" + optionalExpression + expression + " ]";
+        return " Assignment [" + expression + " ]";
     }
 }
 
@@ -344,42 +337,20 @@ class MulOp {
 }
 
 class Factor {
-    UnaryOp optUnaryOp = null;
-    Primary primary;
+    Expression ex = null;
 
-    public Factor(UnaryOp uo, Primary p){
-        primary = p;
-        if (uo != null) 
-            optUnaryOp = uo;
+    public Factor(Expression e){
+        if (e != null)
+            ex = e;
     }
 
     @Override
     public String toString(){
-        return " Factor [" + optUnaryOp + primary + " ]";
-    }
-}
+        if (ex != null)
+            return " Factor [" + ex + " ]";
+        else 
+            return " Factor";
 
-class UnaryOp {
-    public UnaryOp(){}
-
-    @Override
-    public String toString(){
-        return " UnaryOp";
-    }
-}
-
-class Primary {
-    Expression optExpression = null;
-
-    public Primary(){}
-
-    public Primary(Expression e){
-        optExpression = e;
-    }
-
-    @Override
-    public String toString(){
-        return " Primary [" + optExpression + " ]";
     }
 }
 

@@ -38,6 +38,7 @@ public class Parser {
             System.out.println("Valid program syntax detected.");
         } else {
             System.out.println("There was an error in the program syntax.");
+            System.exit(0);
         }
 
         // The syntax tree will be fully parsed by calling program.toString()
@@ -105,8 +106,8 @@ public class Parser {
         Otherwise you'll be grabbing tokens and never properly investigating them */
 
     private Program program() {
-        if (token.type() == TokenType.Int){
-            nextToken();
+        Type t = type();
+        if (t != null) {
             if (token.type() == TokenType.Main) {
                 nextToken();
                 if (token.type() == TokenType.LeftParen) {
@@ -119,7 +120,7 @@ public class Parser {
                             Statements s = statements();
                             if (d != null && s != null && token.type() == TokenType.RightBracket) {
                                 nextToken();
-                                Program program = new Program(d, s);
+                                Program program = new Program(t, d, s);
                                 return program;
                             }
                         }
@@ -132,13 +133,18 @@ public class Parser {
 
     private Declarations declarations() {
         Declarations ds = new Declarations();
-        Declaration d;
+        Declaration d = null;
+
         do {
             d = declaration();
             if (d != null)
                 ds.addDeclaration(d);
         } while (d != null);
-        return ds;
+
+        if (ds.count() > 0)
+            return ds;
+        else
+            return null;
     }
 
 
@@ -147,38 +153,8 @@ public class Parser {
         if (type != null) {
             if (token.type() == TokenType.Identifier) {
                 nextToken();
-                if(token.type() == TokenType.LeftBracket) {
-                    nextToken();
-                    if(token.type() == TokenType.IntLiteral) {
-                        nextToken();
-                        if(token.type() == TokenType.RightBracket) {
-                            nextToken();
-                        }
-                    }
-                }
-
-                Boolean declOptionalRepeat;
-                do {
-                    declOptionalRepeat = false;
-                    if(token.type() == TokenType.Comma) {
-                        nextToken();
-                        if(token.type() == TokenType.Identifier) {
-                            nextToken();
-                            if(token.type() == TokenType.LeftBracket) {
-                                nextToken();
-                                if(token.type() == TokenType.IntLiteral) {
-                                    nextToken();
-                                    if(token.type() == TokenType.RightBracket) {
-                                        nextToken();
-                                    }
-                                }
-                            }
-                            declOptionalRepeat = true;
-                        }
-                    }
-                } while (declOptionalRepeat == true);
-                Declaration declaration = new Declaration(type);  // this line brought to you by the department of redundancy department
-                return declaration;
+                Declaration d = new Declaration(type);
+                return d;
             }
         }
         return null;
@@ -201,22 +177,16 @@ public class Parser {
             if (s != null)
                 ss.addStatement(s);
         } while (s != null);
-        return ss;
+        
+        if (ss.count() > 0)
+            return ss;
+        else
+            return null;
     }
 
     private Statement statement() {
-        if (token.type() == TokenType.Semicolon) {
-            nextToken();
-            Statement statement = new Statement();
-            return statement;
-        } 
-        Block block = block();
         Assignment assignment = assignment();
         IfStatement ifStatement = ifStatement();
-        if (block != null){ 
-            Statement statement = new Statement(block);
-            return statement;
-        }
         if (assignment != null) {
             Statement statement = new Statement(assignment);
             return statement;
@@ -228,39 +198,18 @@ public class Parser {
         return null;
     }
 
-    private Block block() {
-        if (token.type() == TokenType.LeftBrace) {
-            nextToken();
-            Statements s = statements();
-            if (token.type() == TokenType.RightBrace) {
-                nextToken();
-                Block b = new Block(s);
-                return b;
-            }
-        }
-        return null;
-    }
-
     private Assignment assignment() {
-        Expression optionalExpression = null;
         if (token.type() == TokenType.Identifier) {
             nextToken();
-            if (token.type() == TokenType.LeftBracket) {
-                nextToken();
-                optionalExpression = expression();
-                if(optionalExpression != null){
-                    if (token.type() == TokenType.LeftBracket) {
-                        nextToken();
-                    }
-                }
-            }
             if (token.type() == TokenType.Assign) {
                 nextToken();
                 Expression expression = expression();
                 if (expression != null){
                     if (token.type() == TokenType.Semicolon) {
-                        Assignment assignment = new Assignment(expression, optionalExpression);
+                        nextToken();
+                        Assignment assignment = new Assignment(expression);
                         return assignment;
+
                     }
                 }
             }
@@ -467,42 +416,21 @@ public class Parser {
     }
 
     private Factor factor() {
-        UnaryOp unaryOp = unaryOp();
-        Primary primary = primary();
-        if (primary != null) {
-            Factor factor = new Factor(unaryOp, primary);
-            return factor;
-        }
-        return null;
-    }
-
-    private UnaryOp unaryOp() {
-        if(token.type() == TokenType.Not) {
+        Expression e = null;
+        if (token.type() == TokenType.Identifier || token.type() == TokenType.Int || token.type() == TokenType.Bool || token.type() == TokenType.Float){
             nextToken();
-            UnaryOp uo = new UnaryOp();
-            return uo;
-        }  // TODO: "negative"
-        return null;
-    }
-
-    private Primary primary() {
-        Primary primary;
-        if(token.type() == TokenType.Identifier || token.type() == TokenType.IntLiteral || token.type() == TokenType.FloatLiteral || token.type() == TokenType.CharLiteral){
+            Factor f = new Factor(e);
+        } else if (token.type() == TokenType.LeftParen){
             nextToken();
-            primary = new Primary();
-            return primary;
-        } else if (token.type() == TokenType.LeftParen) {
-            nextToken();
-            Expression expression = expression();
-            if (expression != null) {
-                if (token.type() == TokenType.RightParen) {
+            e = expression();
+            if (e != null){
+                if (token.type() == TokenType.RightParen){
                     nextToken();
-                    primary = new Primary(expression);
-                    return primary;
+                    Factor f = new Factor(e);
+                    return f;
                 }
             }
         }
         return null;
     }
-
 }
