@@ -10,13 +10,27 @@ import java.util.ArrayList;
 
 class Program {
     Declarations declarations;
-    Statements statements;
+    Statements statements = new Statements();
     Type type;
 
     public Program(Type t, Declarations d, Statements s){
         type = t;
         declarations = d;
         statements = s;
+    }
+
+    public Program(Type t, Declarations d){
+        type = t;
+        declarations = d;
+    }
+
+    public Boolean isDeclared(String checkname){
+        for (Declaration declaration: declarations.declarations){
+            if (declaration.name.equals(checkname)){
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -50,9 +64,11 @@ class Declarations {
 
 class Declaration {
     Type type;
+    String name;
 
-    public Declaration(Type t){
+    public Declaration(Type t, String n){
         type = t;
+        name = n;
     }
 
     @Override
@@ -112,7 +128,9 @@ class Statement {
 }
 
 class Type {
-    public Type(){}
+    public Type(){
+
+    }
 
     @Override
     public String toString(){

@@ -14,6 +14,7 @@ public class Parser {
 
     BufferedReader lexer;
     Token token;          // current token from the input stream
+    Program program;      // Globally accessible, as per suggestion in Assign3PhaseII docs
 
     public static void main(String args[]) {
         Parser parser  = new Parser();
@@ -32,7 +33,7 @@ public class Parser {
         // get the very first token
         nextToken();
 
-        Program program = program();
+        program = program();
 
         if(program != null) {
             System.out.println("Valid program syntax detected.");
@@ -41,10 +42,8 @@ public class Parser {
             System.exit(0);
         }
 
-        // The syntax tree will be fully parsed by calling program.toString()
-        // but it's not very human-readable, so I go over it with this method to add indentation, etc.
         String tree = program.toString();
-        tree = tree.replace("null", " ");  // remove instances of "null" in the string - those are places where the parse tree terminates
+        tree = tree.replace("null", " ");
         String[] treeParts = tree.split("\\s+");
         
         int indentLevel = 0;
@@ -62,7 +61,6 @@ public class Parser {
                 System.out.println(token);
             }
         }
-
     }
 
     // using the getLine method, get the next token and set it as a global variable
@@ -117,10 +115,15 @@ public class Parser {
                         if (token.type() == TokenType.LeftBracket) {
                             nextToken();
                             Declarations d = declarations();
+
+                            // have to make a Program object so we can do variable declaration checking on it, even if we're not going
+                            // to say that it's valid
+                            program = new Program(t, d);
+
                             Statements s = statements();
                             if (d != null && s != null && token.type() == TokenType.RightBracket) {
                                 nextToken();
-                                Program program = new Program(t, d, s);
+                                program = new Program(t, d, s);
                                 return program;
                             }
                         }
@@ -152,9 +155,13 @@ public class Parser {
         Type type = type();
         if (type != null) {
             if (token.type() == TokenType.Identifier) {
+                String identifierName = token.value();
                 nextToken();
-                Declaration d = new Declaration(type);
-                return d;
+                if (token.type() == TokenType.Semicolon) {
+                    nextToken();
+                    Declaration d = new Declaration(type, identifierName);
+                    return d;
+                }
             }
         }
         return null;
@@ -187,6 +194,7 @@ public class Parser {
     private Statement statement() {
         Assignment assignment = assignment();
         IfStatement ifStatement = ifStatement();
+
         if (assignment != null) {
             Statement statement = new Statement(assignment);
             return statement;
@@ -200,16 +208,21 @@ public class Parser {
 
     private Assignment assignment() {
         if (token.type() == TokenType.Identifier) {
-            nextToken();
-            if (token.type() == TokenType.Assign) {
+            if(!program.isDeclared(token.value())) {
+                System.out.println("Semantic error: '" + token.value() + "' used before declaration.");
+                //System.exit(0);
+            } else {
+                System.out.println("Variable '" + token.value() + "' was already declared; you're good to go.");
                 nextToken();
-                Expression expression = expression();
-                if (expression != null){
-                    if (token.type() == TokenType.Semicolon) {
-                        nextToken();
-                        Assignment assignment = new Assignment(expression);
-                        return assignment;
-
+                if (token.type() == TokenType.Assign) {
+                    nextToken();
+                    Expression expression = expression();
+                    if (expression != null){
+                        if (token.type() == TokenType.Semicolon) {
+                            nextToken();
+                            Assignment assignment = new Assignment(expression);
+                            return assignment;
+                        }
                     }
                 }
             }
@@ -417,9 +430,10 @@ public class Parser {
 
     private Factor factor() {
         Expression e = null;
-        if (token.type() == TokenType.Identifier || token.type() == TokenType.Int || token.type() == TokenType.Bool || token.type() == TokenType.Float){
+        if (token.type() == TokenType.Identifier || token.type() == TokenType.IntLiteral || token.type() == TokenType.Bool || token.type() == TokenType.FloatLiteral){
             nextToken();
             Factor f = new Factor(e);
+            return f;
         } else if (token.type() == TokenType.LeftParen){
             nextToken();
             e = expression();
