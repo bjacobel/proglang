@@ -26,7 +26,7 @@ class Program {
 
     public Boolean isDeclared(String checkname){
         for (Declaration declaration: declarations.declarations){
-            if (declaration.name.equals(checkname)){
+            if (declaration.identifier.contents.equals(checkname)){
                 return true;
             }
         }
@@ -64,16 +64,16 @@ class Declarations {
 
 class Declaration {
     Type type;
-    String name;
+    Identifier identifier;
 
-    public Declaration(Type t, String n){
+    public Declaration(Type t, Identifier i){
         type = t;
-        name = n;
+        identifier = i;
     }
 
     @Override
     public String toString(){
-        return " Declaration [" + type + " ]";
+        return " Declaration [" + type + identifier + " ]";
     }
 }
 
@@ -139,15 +139,17 @@ class Type {
 }
 
 class Assignment {
+    Identifier identifier;
     Expression expression;
 
-    public Assignment(Expression e) {
+    public Assignment(Identifier i, Expression e) {
+        identifier = i;
         expression = e;
     }
 
     @Override
     public String toString(){
-        return " Assignment [" + expression + " ]";
+        return " Assignment [" + identifier + expression + " ]";
     }
 }
 
@@ -355,7 +357,10 @@ class MulOp {
 }
 
 class Factor {
+    Identifier identifier = null;
     Expression ex = null;
+
+    public Factor(Identifier i){identifier = i;};
 
     public Factor(Expression e){
         if (e != null)
@@ -369,6 +374,21 @@ class Factor {
         else 
             return " Factor";
 
+    }
+}
+
+class Identifier {
+    String contents;
+    String type;
+
+    public Identifier(String c, String t){
+        contents = c;
+        type = t;
+    }
+
+    @Override
+    public String toString(){
+        return " Identifier:" + contents + "--oftype:" + type;
     }
 }
 
