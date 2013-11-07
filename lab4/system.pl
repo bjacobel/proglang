@@ -51,13 +51,13 @@ foreach $process (@processes[1..5]){
 ### DO THE DISKUSE STATS ###
 ############################
 
-#print "The 'du' command needs your sudo password. Also, please note that it may take some time to run.\n"; 
-#$du_output = `sudo du -hms /Users/*`;
-#@diskuses = split("\n", $du_output);
+print "The 'du' command needs your sudo password. Also, please note that it may take some time to run.\n"; 
+$du_output = `sudo du -hms /Users/*`;
+@diskuses = split("\n", $du_output);
 
-$input_file = "/Users/bjacobel/Documents/sem7/proglang/code/lab4/du";
-open INPUT_FILE, "<$input_file"; 
-@diskuses = <INPUT_FILE>;
+#$input_file = "/Users/bjacobel/Documents/sem7/proglang/code/lab4/du";
+#open INPUT_FILE, "<$input_file"; 
+#@diskuses = <INPUT_FILE>;
 
 $mail_content .= sprintf "\n-- Disk use summary -- \n";
 foreach $diskuse (@diskuses) {
