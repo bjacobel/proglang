@@ -1,0 +1,6 @@
+void main()
+{
+	int i;
+	double jVar2;
+	jVar2 = 10 + i + 50.99;
+}
