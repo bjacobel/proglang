@@ -6,7 +6,8 @@ main	main
 Type	int
 Identifier	i
 ;	;
-Identifier	doublejVar2
+Type	double
+Identifier	jVar2
 ;	;
 Identifier	jVar2
 =	=
