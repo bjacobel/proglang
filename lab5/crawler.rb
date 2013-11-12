@@ -28,8 +28,8 @@ def crawl(url)
 
         if !$visited.include?(link) and !$broken.include?(link)
             # only crawl if on the bowdoin.edu domain
-            # don't crawl .media files because there are a few and they're REALLY slow to download
-            if link =~ /https?:\/\/(www\.)?bowdoin.edu/i and link !~ /\.mov|\.mp3|\.mp4|\.m4v|\.flv/i
+            # don't crawl pdf/media files because they have to be fully downloaded (slow) and don't have links
+            if link =~ /https?:\/\/(www\.)?bowdoin.edu/i and link !~ /\.pdf\.mov|\.mp3|\.mp4|\.m4v|\.flv/i
                 puts "crawling #{link}"
                 crawl(link)
             end
@@ -37,7 +37,11 @@ def crawl(url)
     end
 end
 
+# GOOOOO
 crawl("http://www.bowdoin.edu")
 
+outFile = File.new("deadlinks.txt", "w")
+
 puts "Number of broken links found: #{$broken.size}"
-puts $broken
+puts "Links output to file deadlinks.txt."
+outFile.puts $broken
