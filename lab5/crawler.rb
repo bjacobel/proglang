@@ -29,7 +29,7 @@ def crawl(url)
         if !$visited.include?(link) and !$broken.include?(link)
             # only crawl if on the bowdoin.edu domain
             # don't crawl pdf/media files because they have to be fully downloaded (slow) and don't have links
-            if link =~ /https?:\/\/(www\.)?bowdoin.edu/i and link !~ /\.pdf\.mov|\.mp3|\.mp4|\.m4v|\.flv/i
+            if link =~ /https?:\/\/(www\.)?bowdoin.edu/i and link !~ /\.jpg|\.jpeg|\.png|\.gif|\.pdf|\.mov|\.mp3|\.mp4|\.m4v|\.flv/i
                 puts "crawling #{link}"
                 crawl(link)
             end
