@@ -5,12 +5,13 @@ require 'mail'
 
 Website = Class.new do
     # lol RFC http://en.wikipedia.org/wiki/HTTP_referer#Origin_of_the_term_referer
-    def initialize(new_url, referer)
+    def initialize(url, referer)
         @referer = referer
-        @url = new_url
-        new_url =~ /(.*\.edu)/i 
-        @domain = $1
+        @url = url
         @broken = false
+
+        @url =~ /(.*\.edu)/i 
+        @domain = $1
     end
 
     def read()
@@ -28,16 +29,11 @@ Website = Class.new do
             if link.class() == String
 
                 # fix links that are relative to the base, e.g. '/admissions'
-                if link =~ /^\/(.*)/
-                    link = @domain + "/" + $1
+                if link =~ /^(\/.*)/
+                    link = @domain + $1
                 end
 
-                # fix even more messed up relative links (eg., '../../index.html')
-                rel_depth = link.scan(/\.\.\//).size
-                if rel_depth > 0
-                    link = @domain + @referer.split("/")[-1*rel_depth].join("/") + "/" + link.split("/")[rel_depth..-1]
-                    puts link
-                end
+                link = link.downcase()
 
                 # deal with links containing (or worse, starting with) '#'
                 if !link.start_with?("#")
@@ -56,7 +52,7 @@ Website = Class.new do
                         # remove duplicates (multiple links from the same page, etc)
                         if !@selected_links.include?(link)
 
-                            # don't crawl pdf/media files because they have to be fully downloaded (slow) and don't have links
+                            # don't crawl pdf/media files because they have to be downloaded (slow) and don't have links
                             if !self.isBlob()
 
                                 # only crawl if on the bowdoin.edu domain
@@ -80,14 +76,11 @@ Website = Class.new do
     end
 
     def getOwner()
-        if @url =~ /~(.+)\// || @url =~ /~(.+)$/
-            return $1
-        else
-            return "unknown"
-        end
+        return $1 if @url =~ /~(.+)\// || @url =~ /~(.+)$/
+        return "unknown"
     end
 
-    attr_reader :url, :content, :domain, :referer
+    attr_reader :url, :content, :domain, :referer, :original_link
     attr_accessor :broken
 end
 
@@ -98,7 +91,7 @@ def crawl(website)
         website.read()
         $sites.push(website)
     rescue
-        puts "broken url #{website.url}"
+        puts "#{website.referer} has a broken link to #{website.url}"
         website.broken = true
         $sites.push(website)
         return false
@@ -106,26 +99,28 @@ def crawl(website)
 
     website.getLinks().each do |link|
         @new_site = Website.new(link, website.url)
-        puts "crawling #{@new_site.url}"
         crawl(@new_site)
     end
 end
 
 
 def mail_owner(site)
-    mail = Mail.new do
-        from    "bjacobel@bowdoin.edu"
-        to      "#{site.owner}@bowdoin.edu"
-        subject "Issues detected on your page"
-        body    "Hi, #{site.owner}. An automated bot detected that your link to #{site.link} from the page #{site.referer} is broken. Have a nice day!"
+    owner = site.getOwner()
+    if owner != "unknown"
+        mail = Mail.new do
+            from    "bjacobel@bowdoin.edu"
+            to      "#{owner}@bowdoin.edu"
+            subject "Issues detected on your page"
+            body    "Hi, #{owner}. An automated bot detected that your link to #{site.url} from the page #{site.referer} is broken. Have a nice day!"
+        end
+        
+        mail.delivery_method :sendmail
+
+        # don't actually send it!!!
+        # mail.deliver
+
+        puts "Sent a friendly email to #{owner}"
     end
-    
-    mail.delivery_method :sendmail
-
-    # don't actually send it!!!
-    # mail.deliver
-
-    puts "Sent a friendly email to #{site.owner}"
 end
 
 # start recursing
@@ -140,7 +135,7 @@ broken = 0
 
 $sites.each do |site|
     if site.broken
-        @outFile.puts site.url
+        @outFile.puts "#{site.referer} has a broken link to #{site.url}"
         mail_owner(site)
         broken +=1
     end
