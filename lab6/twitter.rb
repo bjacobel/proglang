@@ -27,6 +27,9 @@ def find_friends(user, depth)
             retry
         end
 
+        $users << new_friends
+        puts "#{new_friends.length} nodes added to tree"
+
         new_friends.each do |friend| 
             find_friends(friend, depth + 1)
         end
@@ -37,4 +40,5 @@ firstuser = "bjacobel"
 $users << firstuser
 find_friends(firstuser, 0)
 
-puts users
+puts "These are the #{$users.length} users reachable in 5 hops from #{firstuser}:"
+puts $users
