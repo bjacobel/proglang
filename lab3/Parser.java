@@ -15,6 +15,7 @@ public class Parser {
     BufferedReader lexer;
     Token token;          // current token from the input stream
     Program program;      // Globally accessible, as per suggestion in Assign3PhaseII docs
+    ArrayList<Identifier> identifiers = new ArrayList<Identifier>();
 
     public static void main(String args[]) {
         Parser parser  = new Parser();
@@ -160,6 +161,7 @@ public class Parser {
                 if (token.type() == TokenType.Semicolon) {
                     nextToken();
                     Identifier i = new Identifier(identifierName, type.name);
+                    identifiers.add(i);
                     Declaration d = new Declaration(type, i);
                     return d;
                 }
@@ -222,7 +224,7 @@ public class Parser {
     private Assignment assignment() {
         if (token.type() == TokenType.Identifier) {
             //DON'T CREATE A NEW IDENTIFIER
-            Identifier identifier = new Identifier(token.value(), token.type().name());
+            Identifier identifier = identifierLookup(token.value());
             if(!program.isDeclared(identifier.contents)) {
                 System.out.println("Semantic error: '" + identifier.contents + "' used before declaration.");
                 System.exit(0);
@@ -451,7 +453,7 @@ public class Parser {
         Expression e = null;
         if (token.type() == TokenType.Identifier ){
             // DON'T CREATE A NEW IDENTIFIER
-            Factor f = new Factor(new Identifier(token.value(), token.type().name()));
+            Factor f = new Factor(identifierLookup(token.value()));
             nextToken();
             return f;
         } else if (token.type() == TokenType.IntLiteral || token.type() == TokenType.Bool || token.type() == TokenType.FloatLiteral){
@@ -464,11 +466,17 @@ public class Parser {
             if (e != null){
                 if (token.type() == TokenType.RightParen){
                     nextToken();
-                    Factor f = new Factor(e);
-                    return f;
+                    return new Factor(e);
                 }
             }
         }
+        return null;
+    }
+
+    private Identifier identifierLookup(String idName){
+        for(Identifier i : identifiers)
+            if (i.contents.equals(idName))
+                return i;
         return null;
     }
 }
