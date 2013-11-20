@@ -101,12 +101,13 @@ class Statements {
 }
 
 class Statement {
-    // all fields must be null because they are all optional (ie, a statement might hold none of these)
+    // all fields must be null because only one of these will actually be filled
     Assignment assignment = null;
     IfStatement ifstatement = null;
+    Identifier identifier = null;
 
-    // and because of that we need three separate constructors
-    public Statement(){}
+    // and because of that we need a couple separate constructors
+    public Statement(){} // this one if probably unneccessary
 
     public Statement(Assignment a){
         assignment = a;
@@ -116,9 +117,13 @@ class Statement {
         ifstatement = i;
     }
 
+    public Statement(Identifier i){
+        identifier = i;
+    }
+
     @Override
     public String toString(){
-        return " Statement [" + assignment + ifstatement + " ]";
+        return " Statement [" + assignment + ifstatement + identifier + " ]";
     }
 }
 
@@ -406,10 +411,23 @@ class Factor {
 class Identifier {
     String contents;
     String type;
+    Boolean boolval = false;
+    int intval = 0;
+    float floatval = (float)0;
 
     public Identifier(String c, String t){
         contents = c;
         type = t;
+    }
+
+    public Object getValue(){
+        if (type.equals("bool"))
+            return boolval;
+        else if (type.equals("float"))
+            return floatval;
+        else if(type.equals("int"))
+            return intval;
+        return null;
     }
 
     @Override

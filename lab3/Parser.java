@@ -213,14 +213,20 @@ public class Parser {
         if (assignment != null) {
             Statement statement = new Statement(assignment);
             return statement;
-        }
-        if (ifStatement != null) {
+        } else if (ifStatement != null) {
             Statement statement = new Statement(ifStatement);
             return statement;
-        }
-        if (print()){
-            Assignment a2 = assignment();
-            return new Statement(a2);
+        } else if (print()){
+            Identifier i = identifierLookup(token.value());
+            String identifierName = token.value();
+            nextToken();
+            if (i != null) {
+                if(token.type() == TokenType.Semicolon) {
+                    nextToken();
+                    System.out.println("Print command invoked: "+identifierName+" has value "+i.getValue());
+                    return new Statement(i);
+                }
+            }
         }
         return null;
     }
