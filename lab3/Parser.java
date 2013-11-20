@@ -156,11 +156,10 @@ public class Parser {
         if (type != null) {
             if (token.type() == TokenType.Identifier) {
                 String identifierName = token.value();
-                String identifierType = token.type().name();
                 nextToken();
                 if (token.type() == TokenType.Semicolon) {
                     nextToken();
-                    Identifier i = new Identifier(identifierName, identifierType);
+                    Identifier i = new Identifier(identifierName, type.name);
                     Declaration d = new Declaration(type, i);
                     return d;
                 }
@@ -170,9 +169,21 @@ public class Parser {
     }
 
     private Type type(){
-        if(token.type() == TokenType.Int || token.type() == TokenType.Bool || token.type() == TokenType.Char || token.type() == TokenType.Float) {
+        if(token.type() == TokenType.Int){
             nextToken();
-            Type t = new Type();
+            Type t = new Type("int");
+            return t;
+        } else if (token.type() == TokenType.Bool) {
+            nextToken();
+            Type t = new Type("bool");
+            return t;
+        } else if (token.type() == TokenType.Char) {
+            nextToken();
+            Type t = new Type("char");
+            return t;
+        } else if (token.type() == TokenType.Float) {
+            nextToken();
+            Type t = new Type("float");
             return t;
         }
         return null;
@@ -210,21 +221,26 @@ public class Parser {
 
     private Assignment assignment() {
         if (token.type() == TokenType.Identifier) {
+            //DON'T CREATE A NEW IDENTIFIER
             Identifier identifier = new Identifier(token.value(), token.type().name());
             if(!program.isDeclared(identifier.contents)) {
                 System.out.println("Semantic error: '" + identifier.contents + "' used before declaration.");
-                //System.exit(0);
+                System.exit(0);
             } else {
                 System.out.println("Variable '" + identifier.contents + "' was already declared; you're good to go.");
                 nextToken();
                 if (token.type() == TokenType.Assign) {
                     nextToken();
                     Expression expression = expression();
-                    if (expression != null){
-                        if (token.type() == TokenType.Semicolon) {
-                            nextToken();
-                            Assignment assignment = new Assignment(identifier, expression);
-                            return assignment;
+                    if (expression.type == identifier.type)
+                        System.out.println("Error: Assignment expected type " + identifier.type + ", got type " + expression.type);
+                    else {
+                        if (expression != null){
+                            if (token.type() == TokenType.Semicolon) {
+                                nextToken();
+                                Assignment assignment = new Assignment(identifier, expression);
+                                return assignment;
+                            }
                         }
                     }
                 }
@@ -434,6 +450,7 @@ public class Parser {
     private Factor factor() {
         Expression e = null;
         if (token.type() == TokenType.Identifier ){
+            // DON'T CREATE A NEW IDENTIFIER
             Factor f = new Factor(new Identifier(token.value(), token.type().name()));
             nextToken();
             return f;

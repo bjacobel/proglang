@@ -128,8 +128,9 @@ class Statement {
 }
 
 class Type {
-    public Type(){
-
+    String name;
+    public Type(String n){
+        name = n;
     }
 
     @Override
@@ -173,10 +174,12 @@ class IfStatement {
 
 class Expression {
     Conjunction reqConjunction;
+    String type;
     ArrayList<Conjunction> optConjunctions = new ArrayList();
 
     public Expression(Conjunction c){
         reqConjunction = c;
+        type = reqConjunction.type;
     }
 
     public void addConjunction(Conjunction c) {
@@ -195,10 +198,12 @@ class Expression {
 
 class Conjunction {
     Equality reqEquality;
+    String type;
     ArrayList<Equality> optEqualities = new ArrayList();
 
     public Conjunction(Equality e){
         reqEquality = e;
+        type = reqEquality.type;
     }
 
     public void addEquality(Equality e) {
@@ -219,6 +224,7 @@ class Equality {
     Relation relation;
     EquOp equop = null;
     Relation optRelation = null;
+    String type;
 
     public Equality(Relation r, EquOp eo, Relation or){
         relation = r;
@@ -226,6 +232,8 @@ class Equality {
             equop = eo;
         if (or != null)
             optRelation  = or;
+
+        type = relation.type;
 
         // i guess tehnically checking to see if it's null before making a variable that's alreay null
         // is kind of stupid. but it's more clear than not explicitly saying "these are optional" in any other way
@@ -252,6 +260,7 @@ class Relation {
     Addition addition;
     RelOp relop = null;
     Addition optAddition = null;
+    String type;
 
     public Relation(Addition a, RelOp ro, Addition oa){
         addition = a;
@@ -259,6 +268,7 @@ class Relation {
             relop = ro;
         if (oa != null)
             optAddition  = oa;
+        type = addition.type;
     }
 
     @Override
@@ -282,9 +292,11 @@ class Addition {
     Term term;
     ArrayList<AddOp> optAddOps = new ArrayList();
     ArrayList<Term> optTerms = new ArrayList();
+    String type;
 
     public Addition(Term t) {
         term = t;
+        type = term.type;
     }
 
     public void addAddOp(AddOp ao){
@@ -321,9 +333,11 @@ class Term {
     Factor factor;
     ArrayList<MulOp> optMulOps = new ArrayList();
     ArrayList<Factor> optFactors = new ArrayList();
+    String type;
 
     public Term(Factor f) {
         factor = f;
+        type = factor.type;
     }
 
     public void addMulOp(MulOp mo){
@@ -359,8 +373,12 @@ class MulOp {
 class Factor {
     Identifier identifier = null;
     Expression ex = null;
+    String type;
 
-    public Factor(Identifier i){identifier = i;};
+    public Factor(Identifier i){
+        identifier = i;
+        type = identifier.type;
+    };
 
     public Factor(Expression e){
         if (e != null)
@@ -388,7 +406,7 @@ class Identifier {
 
     @Override
     public String toString(){
-        return " Identifier:" + contents + "--oftype:" + type;
+        return " Identifier:" + contents + "(type:" + type + ")";
     }
 }
 
