@@ -174,16 +174,18 @@ class IfStatement {
 
 class Expression {
     Conjunction reqConjunction;
-    String type;
     ArrayList<Conjunction> optConjunctions = new ArrayList();
 
     public Expression(Conjunction c){
         reqConjunction = c;
-        type = reqConjunction.type;
     }
 
     public void addConjunction(Conjunction c) {
         optConjunctions.add(c);
+    }
+
+    public String getType(){
+        return reqConjunction.getType();
     }
 
     @Override
@@ -198,16 +200,18 @@ class Expression {
 
 class Conjunction {
     Equality reqEquality;
-    String type;
     ArrayList<Equality> optEqualities = new ArrayList();
 
     public Conjunction(Equality e){
         reqEquality = e;
-        type = reqEquality.type;
     }
 
     public void addEquality(Equality e) {
         optEqualities.add(e);
+    }
+
+    public String getType(){
+        return reqEquality.getType();
     }
 
     @Override
@@ -224,7 +228,6 @@ class Equality {
     Relation relation;
     EquOp equop = null;
     Relation optRelation = null;
-    String type;
 
     public Equality(Relation r, EquOp eo, Relation or){
         relation = r;
@@ -233,11 +236,13 @@ class Equality {
         if (or != null)
             optRelation  = or;
 
-        type = relation.type;
-
         // i guess tehnically checking to see if it's null before making a variable that's alreay null
         // is kind of stupid. but it's more clear than not explicitly saying "these are optional" in any other way
         // now if only this was Python or PHP and methods could have defaults for unprovided parameters
+    }
+
+    public String getType(){
+        return relation.getType();
     }
 
     @Override
@@ -260,7 +265,6 @@ class Relation {
     Addition addition;
     RelOp relop = null;
     Addition optAddition = null;
-    String type;
 
     public Relation(Addition a, RelOp ro, Addition oa){
         addition = a;
@@ -268,7 +272,10 @@ class Relation {
             relop = ro;
         if (oa != null)
             optAddition  = oa;
-        type = addition.type;
+    }
+
+    public String getType(){
+        return addition.getType();
     }
 
     @Override
@@ -292,11 +299,9 @@ class Addition {
     Term term;
     ArrayList<AddOp> optAddOps = new ArrayList();
     ArrayList<Term> optTerms = new ArrayList();
-    String type;
 
     public Addition(Term t) {
         term = t;
-        type = term.type;
     }
 
     public void addAddOp(AddOp ao){
@@ -304,6 +309,10 @@ class Addition {
     }
     public void addTerm(Term t){
         optTerms.add(t);
+    }
+
+    public String getType(){
+        return term.getType();
     }
 
     @Override
@@ -333,11 +342,9 @@ class Term {
     Factor factor;
     ArrayList<MulOp> optMulOps = new ArrayList();
     ArrayList<Factor> optFactors = new ArrayList();
-    String type;
 
     public Term(Factor f) {
         factor = f;
-        type = factor.type;
     }
 
     public void addMulOp(MulOp mo){
@@ -345,6 +352,10 @@ class Term {
     }
     public void addFactor(Factor f){
         optFactors.add(f);
+    }
+
+    public String getType(){
+        return factor.getType();
     }
 
     @Override
@@ -371,18 +382,20 @@ class MulOp {
 }
 
 class Factor {
-    Identifier identifier = null;
+    Identifier identifier;
     Expression ex = null;
-    String type;
 
     public Factor(Identifier i){
         identifier = i;
-        type = identifier.type;
     };
 
     public Factor(Expression e){
         if (e != null)
             ex = e;
+    }
+
+    public String getType(){
+        return identifier.type;
     }
 
     @Override

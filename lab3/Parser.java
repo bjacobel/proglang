@@ -234,8 +234,8 @@ public class Parser {
                 if (token.type() == TokenType.Assign) {
                     nextToken();
                     Expression expression = expression();
-                    if (expression.type == identifier.type)
-                        System.out.println("Error: Assignment expected type " + identifier.type + ", got type " + expression.type);
+                    if (!expression.getType().equals(identifier.type))
+                        System.out.println("Error: Assignment expected type " + identifier.type + ", got type " + expression.getType());
                     else {
                         if (expression != null){
                             if (token.type() == TokenType.Semicolon) {
@@ -453,14 +453,26 @@ public class Parser {
         Expression e = null;
         if (token.type() == TokenType.Identifier ){
             // DON'T CREATE A NEW IDENTIFIER
+            System.out.println(token.value());
             Factor f = new Factor(identifierLookup(token.value()));
             nextToken();
             return f;
-        } else if (token.type() == TokenType.IntLiteral || token.type() == TokenType.Bool || token.type() == TokenType.FloatLiteral){
+        } else if (token.type() == TokenType.IntLiteral){
+            String type = "int";
+            String value = token.value();
             nextToken();
-            Factor f = new Factor(e);
-            return f;
-        } else if (token.type() == TokenType.LeftParen){
+            return new Factor(new Identifier(value, type));
+        } else if (token.type() == TokenType.Bool){
+            String type = "bool";
+            String value = token.value();
+            nextToken();
+            return new Factor(new Identifier(value, type));
+        } else if (token.type() == TokenType.FloatLiteral){
+            String type = "float";
+            String value = token.value();
+            nextToken();
+            return new Factor(new Identifier(value, type));
+        }   else if (token.type() == TokenType.LeftParen){
             nextToken();
             e = expression();
             if (e != null){
