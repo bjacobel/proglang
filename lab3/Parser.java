@@ -218,6 +218,10 @@ public class Parser {
             Statement statement = new Statement(ifStatement);
             return statement;
         }
+        if (print()){
+            Assignment a2 = assignment();
+            return new Statement(a2);
+        }
         return null;
     }
 
@@ -279,6 +283,14 @@ public class Parser {
             }
         }
         return null;
+    }
+
+    private Boolean print(){
+        if(token.type()==TokenType.Print){
+            nextToken();
+            return true;
+        }
+        return false;
     }
 
     private Expression expression() {

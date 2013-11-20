@@ -38,6 +38,7 @@ public class Token {
     public static final Token divideTok = new Token(TokenType.Divide, "/");
     public static final Token andTok = new Token(TokenType.And, "&&");
     public static final Token orTok = new Token(TokenType.Or, "||");
+    public static final Token printTok = new Token(TokenType.Print, "print");
 
     private TokenType type;
     private String value = "";

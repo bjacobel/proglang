@@ -6,5 +6,5 @@ public enum TokenType {
      Equals, Less, LessEqual, Greater, GreaterEqual,
      Not, NotEqual, Plus, Minus, Multiply,
      Divide, And, Or, Identifier, IntLiteral,
-     FloatLiteral, CharLiteral
+     FloatLiteral, CharLiteral, Print
 }

@@ -102,16 +102,11 @@ class Statements {
 
 class Statement {
     // all fields must be null because they are all optional (ie, a statement might hold none of these)
-    Block block = null;
     Assignment assignment = null;
     IfStatement ifstatement = null;
 
     // and because of that we need three separate constructors
     public Statement(){}
-
-    public Statement(Block b){
-        block = b;
-    }
 
     public Statement(Assignment a){
         assignment = a;
@@ -123,7 +118,7 @@ class Statement {
 
     @Override
     public String toString(){
-        return " Statement [" + block + assignment + ifstatement + " ]";
+        return " Statement [" + assignment + ifstatement + " ]";
     }
 }
 

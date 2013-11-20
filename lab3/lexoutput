@@ -10,4 +10,7 @@ Identifier four
 Assign = 
 IntLiteral 4
 Semicolon ;
+Print print
+Identifier four
+Semicolon ;
 RightBracket }
