@@ -3,12 +3,12 @@ Main main
 LeftParen (
 RightParen )
 LeftBracket {
-Int int
+Float float
 Identifier four
 Semicolon ;
 Identifier four
 Assign = 
-IntLiteral 4
+FloatLiteral 4.0
 Semicolon ;
 Print print
 Identifier four

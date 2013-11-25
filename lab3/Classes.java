@@ -411,28 +411,107 @@ class Factor {
 class Identifier {
     String contents;
     String type;
-    Boolean boolval = false;
-    int intval = 0;
-    float floatval = (float)0;
+    Value value;
 
     public Identifier(String c, String t){
         contents = c;
         type = t;
+
+        if (type.equals("bool")){
+            value = new BoolValue();
+        } else if (type.equals("float")){
+            value = new FloatValue();
+        } else if (type.equals("int")){
+            value = new IntValue();
+        }
     }
 
     public Object getValue(){
-        if (type.equals("bool"))
-            return boolval;
-        else if (type.equals("float"))
-            return floatval;
-        else if(type.equals("int"))
-            return intval;
-        return null;
+        return value.eval();
+    }
+
+    public void setValue(Boolean b){
+        value = new BoolValue(b);
+    }
+
+    public void setValue(float f){
+        value = new FloatValue(f);
+    }
+
+    public void setValue(int i){
+        value = new IntValue(i);
     }
 
     @Override
     public String toString(){
         return " Identifier:" + contents + "(type:" + type + ")";
     }
+
 }
 
+class Value {
+    String myType;
+
+    public Value(){}
+
+    public String eval(){return null;}
+
+    public void setval(){}
+}
+
+class BoolValue extends Value {
+    Boolean value = false;
+
+    public BoolValue(){
+        super();
+        myType = "bool";
+    }
+
+    public BoolValue(Boolean b){
+        super();
+        value = b;
+    }
+    
+    @Override
+    public String eval(){
+        return value.toString();
+    }
+}
+
+class IntValue extends Value {
+    int value = 0;
+
+    public IntValue(){
+        super();
+        myType = "int";
+    }
+
+    public IntValue(int i){
+        super();
+        value = i;
+    }
+
+    @Override
+    public String eval(){
+        return Integer.toString(value);
+    }
+}
+
+class FloatValue extends Value {
+    float value = (float)0;
+
+    public FloatValue(){
+        super();
+        myType = "float";
+    }
+
+    public FloatValue(float f){
+super();
+        value = f;
+    }
+
+    @Override
+    public String eval(){
+        return Float.toString(value);
+    }
+}
