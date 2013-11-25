@@ -10,35 +10,39 @@ end
 $users = [] 
 
 def find_friends(user, depth)
-    if depth > 5
+    if depth == 2
         puts "Maximum depth reached."
         return
     else
-        new_friends = []
-        
         begin
-            Twitter.friends(user).each do |friend|
-               new_friends << friend.name if !$users.include?(friend.name)
-            end
+            $friends = Twitter.friends(user)
         rescue Twitter::Error::TooManyRequests => error
-            puts "Rate limit exceeded. Sleeping it off."
-            puts "$users currently has #{$users.length} entries."
-            sleep (error.rate_limit.reset_in + 60)
+            puts "Rate limit exceeded. Waiting #{error.rate_limit.reset_in} sec. ($users.length = #{$users.length})"
+            sleep (error.rate_limit.reset_in)
             retry
         end
 
-        $users << new_friends
-        puts "#{new_friends.length} nodes added to tree"
-
-        new_friends.each do |friend| 
-            find_friends(friend, depth + 1)
+        $friends.each do |friend|
+            if !$users.include?(friend.name)
+                $users << friend.name
+                puts "Adding #{friend.name}, and finding their friends..."
+                begin
+                    find_friends(friend, depth + 1)
+                rescue Twitter::Error::TooManyRequests => error
+                    puts "Rate limit exceeded. Waiting #{error.rate_limit.reset_in} sec. ($users.length = #{$users.length})"
+                    sleep (error.rate_limit.reset_in)
+                    retry
+                end
+            end
         end
     end
 end
 
-firstuser = "bjacobel"
-$users << firstuser
-find_friends(firstuser, 0)
+$users << "Ellis Ratner"
+find_friends("ellisratner", 0)
 
-puts "These are the #{$users.length} users reachable in 5 hops from #{firstuser}:"
+puts "These are the #{$users.length} users reachable in 2 hops:"
 puts $users
+
+@outFile = File.new("users.txt", "w")
+@outFile.puts($users)
