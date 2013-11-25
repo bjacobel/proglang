@@ -188,6 +188,29 @@ class Expression {
         return reqConjunction.getType();
     }
 
+    public Value getValue(){
+        if (this.getType().equals("int")) {
+            if (optConjunctions.size() != 0) {
+                System.out.println("Error: illegal operation on type int");
+                System.exit(0);
+            } else
+                return reqConjunction.getValue();
+        } else if (this.getType().equals("float")) {
+            if (optConjunctions.size() != 0) {
+                System.out.println("Error: illegal operation on type float");
+                System.exit(0);
+            } else
+                return reqConjunction.getValue();
+        } else if (this.getType().equals("bool")) {
+            Boolean val = reqConjunction.getValue().eval();
+            for (Conjunction conj : optConjunctions) {
+                val = val || conj.getValue().eval();
+            }
+            return new BoolValue(val);
+        }
+        else return null;
+    }
+
     @Override
     public String toString(){
         String s = " Expression [" + reqConjunction;
@@ -214,6 +237,29 @@ class Conjunction {
         return reqEquality.getType();
     }
 
+    public Value getValue(){
+        if (this.getType().equals("int")) {
+            if (optEqualities.size() != 0) {
+                System.out.println("Error: illegal operation on type int");
+                System.exit(0);
+            } else
+                return reqEquality.getValue();
+        } else if (this.getType().equals("float")) {
+            if (optEqualities.size() != 0) {
+                System.out.println("Error: illegal operation on type float");
+                System.exit(0);
+            } else
+                return reqEquality.getValue();
+        } else if (this.getType().equals("bool")) {
+            Boolean val = reqEquality.getValue().eval();
+            for (Equality equl : optEqualities) {
+                val = val && equl.getValue().eval();
+            }
+            return new BoolValue(val);
+        }
+        else return null;    
+    }
+
     @Override
     public String toString(){
         String s = " Conjunction [" + reqEquality;
@@ -235,10 +281,6 @@ class Equality {
             equop = eo;
         if (or != null)
             optRelation  = or;
-
-        // i guess tehnically checking to see if it's null before making a variable that's alreay null
-        // is kind of stupid. but it's more clear than not explicitly saying "these are optional" in any other way
-        // now if only this was Python or PHP and methods could have defaults for unprovided parameters
     }
 
     public String getType(){
@@ -506,7 +548,7 @@ class FloatValue extends Value {
     }
 
     public FloatValue(float f){
-super();
+        super();
         value = f;
     }
 

@@ -244,8 +244,7 @@ public class Parser {
                 if (token.type() == TokenType.Assign) {
                     nextToken();
                     Expression expression = expression();
-                    // HUGE TODO
-                    //identifier.setValue(expression.getValue());
+                    identifier.setValue(expression.getValue().eval());
                     if (!expression.getType().equals(identifier.type))
                         System.out.println("Error: Assignment expected type " + identifier.type + ", got type " + expression.getType());
                     else {
